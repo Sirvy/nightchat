@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
+            .box {
+                width: 32px;
+                height: 32px;
+                background: #000;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="box"></div>
+        <script>
+            const socket = new WebSocket('ws://127.0.0.1:8080', 'echo-protocol');
+
+            socket.addEventListener('open', (event) => {
+                console.log('Connected to server!');
+            });
+
+            socket.onmessage = (event) => {
+                // console.log(event);
+
+                const data = JSON.parse(event.data);
+
+                move('.box')
+                    .x(data.x - 16)
+                    .y(data.y - 16)
+                    .end();
+            };
+
+            document.addEventListener('click', (event) => {
+                const x = event.clientX;
+                const y = event.clientY;
+                const data = { x, y };
+                move('.box')
+                    .x(x - 16)
+                    .y(y - 16)
+                    .end();
+                sendData(data);
+            });
+
+            function sendData(data) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(data));
+                }
+            }
+        </script>
+        <script src='./move.min.js'></script>
+    </body>
+</html>
